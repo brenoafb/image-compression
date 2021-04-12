@@ -30,7 +30,6 @@ def decompress(data):
 
 def get_blocks(mat, block_size):
     dim = mat.shape[0] # assume square matrix
-    print(f'dim = {dim}')
     n_blocks = dim // block_size  # number of blocks per row
     blocks = []
     for i in range(n_blocks):
