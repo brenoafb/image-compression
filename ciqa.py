@@ -16,7 +16,6 @@ def compress(image, block_size, levels):
 def decompress(data):
     n_blocks = data['blocks_per_row']
     block_size = data['block_size']
-    levels = data['levels']
     quantized_blocks = data['quantized_blocks']
     size = block_size * n_blocks
     img = np.zeros((size,size), dtype=np.uint8)
