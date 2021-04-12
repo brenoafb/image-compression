@@ -1,6 +1,11 @@
+import json
 import numpy as np
 import PIL as pil
 import matplotlib.pyplot as plt
+import bitstring as bs
+from base64 import b64encode, b64decode
+from math import ceil, log2
+from util import bits2bytes, bytes2bits
 
 def compress(image: np.ndarray, block_size: int, levels: int) -> dict:
     array = np.asarray(image)
@@ -27,6 +32,30 @@ def decompress(data: dict) -> np.ndarray:
             for j in range(block_size):
                 img[x+i,y+j] = block_img[i,j]
     return img
+
+def serialize(data):
+    nbits = ceil(log2(data['levels']))
+    quantized_block_bits = []
+    for (array, levels) in data['quantized_blocks']:
+        (bits, shape) = bytes2bits(array, element_bit_length=nbits)
+        b64 = b64encode(bits.tobytes()).decode()
+        quantized_block_bits.append((levels, shape, b64))
+    new_data = data.copy()
+    new_data['quantized_blocks'] = quantized_block_bits
+    return json.dumps(new_data)
+
+def deserialize(serialized):
+    data = json.loads(serialized)
+    nbits = ceil(log2(data['levels']))
+    quantized_blocks = []
+    for (levels, shape, b64) in data['quantized_blocks']:
+        bits = bs.BitArray(b64decode(b64))
+        array = bits2bytes(bits, shape, element_bit_length=nbits)
+        quantized_blocks.append((array, levels))
+    new_data = data.copy()
+    new_data['quantized_blocks'] = quantized_blocks
+    return new_data
+
 
 def get_blocks(mat: np.ndarray, block_size: int) -> tuple:
     dim = mat.shape[0] # assume square matrix
