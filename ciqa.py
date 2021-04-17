@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import bitstring as bs
 from base64 import b64encode, b64decode
 from math import ceil, log2
-from util import bits2bytes, bytes2bits
+from util import *
 
 def compress(image: np.ndarray, block_size: int, levels: int) -> dict:
     array = np.asarray(image)
@@ -55,21 +55,6 @@ def deserialize(serialized):
     new_data = data.copy()
     new_data['quantized_blocks'] = quantized_blocks
     return new_data
-
-
-def get_blocks(mat: np.ndarray, block_size: int) -> tuple:
-    dim = mat.shape[0] # assume square matrix
-    n_blocks = dim // block_size  # number of blocks per row
-    blocks = []
-    for i in range(n_blocks):
-        start1 = i * block_size
-        end1 = (i + 1) * block_size
-        for j in range(n_blocks):
-            start2 = j * block_size
-            end2 = (j + 1) * block_size
-            block = mat[start1:end1, start2:end2]
-            blocks.append(block)
-    return (n_blocks, blocks)
 
 def quantize(block: np.ndarray, levels: int) -> tuple:
     ranges = get_ranges(block, levels)
