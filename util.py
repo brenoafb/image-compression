@@ -1,6 +1,25 @@
 import bitstring as bs
 import numpy as np
 
+def get_blocks(mat: np.ndarray, block_size: int) -> tuple:
+    '''
+    Break a square matrix into square blocks of the specified size
+    For best results, the size of the matrix should be a
+    multiple of block_size
+    '''
+    dim = mat.shape[0] # assume square matrix
+    n_blocks = dim // block_size  # number of blocks per row
+    blocks = []
+    for i in range(n_blocks):
+        start1 = i * block_size
+        end1 = (i + 1) * block_size
+        for j in range(n_blocks):
+            start2 = j * block_size
+            end2 = (j + 1) * block_size
+            block = mat[start1:end1, start2:end2]
+            blocks.append(block)
+    return (n_blocks, blocks)
+
 def bits2bytes(bits: bs.BitArray, shape: tuple, element_bit_length: int = 8) -> np.ndarray:
     values = []
     for i in range(0, bits.length, element_bit_length):
