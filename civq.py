@@ -1,11 +1,11 @@
 import numpy as np
-from scipy.cluster.vq import kmeans, kmeans2, whiten
 from util import *
 
 def compress(image: np.ndarray, block_size: int, k: int) -> dict:
   size = image.shape[0] # assuming that image is square
   (_, blocks) = get_blocks(image, block_size)
-  (codebook, labels) = get_codebook(blocks, k)
+  vectors = np.array([x.flatten() for x in blocks])
+  (codebook, labels) = get_codebook(vectors, k)
   return {
     'codebook': codebook,
     'labels': labels,
@@ -33,14 +33,3 @@ def build_image_from_codebook(codebook, labels, size, block_size):
           for j in range(block_size):
               img[x+i, y+j] = block[i, j]
   return img
-
-def get_codebook(blocks, k):
-  '''
-  given the blocks of the image and a number of clusters, 
-  return a codebook and the label for each block
-  '''
-  vectors = np.array([x.flatten() for x in blocks])
-  vectors = vectors.astype(np.float32)
-  codebook, labels = kmeans2(vectors, k)
-  codebook = codebook.astype(np.uint8)
-  return (codebook, labels)

@@ -1,5 +1,6 @@
 import bitstring as bs
 import numpy as np
+from scipy.cluster.vq import kmeans2
 
 def get_blocks(mat: np.ndarray, block_size: int) -> tuple:
     '''
@@ -19,6 +20,16 @@ def get_blocks(mat: np.ndarray, block_size: int) -> tuple:
             block = mat[start1:end1, start2:end2]
             blocks.append(block)
     return (n_blocks, blocks)
+
+def get_codebook(vectors, k):
+  '''
+  given a collection of vectors and a number of clusters, 
+  return a codebook and the label for each vector
+  '''
+  vectors = vectors.astype(np.float32)
+  codebook, labels = kmeans2(vectors, k)
+  codebook = codebook.astype(np.uint8)
+  return (codebook, labels)
 
 def bits2bytes(bits: bs.BitArray, shape: tuple, element_bit_length: int = 8) -> np.ndarray:
     values = []
