@@ -7,8 +7,7 @@ from base64 import b64encode, b64decode
 from math import ceil, log2
 from util import *
 
-def compress(image: np.ndarray, block_size: int, levels: int) -> dict:
-    array = np.asarray(image)
+def compress(array: np.ndarray, block_size: int, levels: int) -> dict:
     (n_blocks, blocks) = get_blocks(array, block_size)
     quantized_blocks = [quantize(block, levels) for block in blocks]
     return {
