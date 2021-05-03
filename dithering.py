@@ -1,28 +1,34 @@
 import numpy as np
+from itertools import product
 
 def dither(img):
-    # result = np.zeros_like(img)
-    for i in range(img.shape[0]):
-        for j in range(img.shape[1]):
-            old = img[i,j]
+    cp = np.copy(img).astype(np.float32) / 255.0
+    for i in range(cp.shape[0]):       # top to bottom
+        for j in range(cp.shape[1]):   # left to right
+            old = cp[i,j]
             new = closest_palette_color(old)
-            img[i,j] = new
             qe = old - new
-            if i < img.shape[0] - 1:
-                img[i+1,j]   += qe * 7 // 16
-            if i > 0 and j < img.shape[1] - 1:
-                img[i-1,j+1] += qe * 3 // 16
-            if j < img.shape[1] - 1:
-                img[i  ,j+1] += qe * 5 // 16
-            if i < img.shape[1] - 1 and j < img.shape[1] - 1:
-                img[i+1,j+1] += qe * 1 // 16
-            
-    return img
+            if j < cp.shape[1] - 1:
+                cp[i,j+1] += qe * 7 / 16
+            if i < cp.shape[0] - 1 and j > 0:
+                cp[i+1,j-1] += qe * 3 / 16
+            if i < cp.shape[0] - 1:
+                cp[i+1,j] += qe * 5/16
+            if i < cp.shape[0] - 1 and j < cp.shape[1] - 1:
+                cp[i+1,j+1] += qe * 1 / 16
+    return (cp * 255).astype(np.uint8)
 
-# find closest web-safe color
-# https://stackoverflow.com/a/29002582
+def fit_to_palette(img):
+    cp = np.copy(img).astype(np.float32) / 255.0
+    for i in range(cp.shape[0]):
+        for j in range(cp.shape[1]):
+            new = closest_palette_color(cp[i,j])
+            cp[i,j] = new
+    return cp
+
 def closest_palette_color(pixel):
-    r = np.uint8(round( ( pixel[0] / 255.0 ) * 5 ) * 51)
-    g = np.uint8(round( ( pixel[1] / 255.0 ) * 5 ) * 51)
-    b = np.uint8(round( ( pixel[2] / 255.0 ) * 5 ) * 51)
-    return np.array([r, g, b])
+    r = round(pixel[0])
+    g = round(pixel[1])
+    b = round(pixel[2])
+    result = np.array([r, g, b], dtype=np.float32) 
+    return result
